@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Predictor</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+</head>
+<body>
+    <h2>2. Predictor</h2>
+    <input type="number" id="val" value="10">
+    <button onclick="predict()">Predict</button>
+    <p id="out"></p>
+
+    <script>
+        async function predict() {
+            try {
+                // This line fails if opened as a local C:\ file. 
+                // Must be on a server or GitHub!
+                const model = await tf.loadLayersModel('my-model.json');
+                const input = tf.tensor2d([parseFloat(document.getElementById('val').value)], [1, 1]);
+                const result = model.predict(input);
+                document.getElementById('out').innerText = "Result: " + result.dataSync()[0].toFixed(2);
+            } catch (e) {
+                alert("Error: You must run this on a server (or GitHub) to load the model file!");
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>

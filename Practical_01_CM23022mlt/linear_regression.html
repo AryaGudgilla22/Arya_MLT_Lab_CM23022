@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trainer</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.5.1/dist/tfjs-vis.umd.min.js"></script>
+</head>
+<body>
+    <h2>1. Trainer</h2>
+    <button onclick="train()">Train & Download</button>
+    <p id="status">Status: Idle</p>
+    <script>
+        async function train() {
+            const model = tf.sequential();
+            model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+            model.compile({ optimizer: 'sgd', loss: 'meanSquaredError' });
+            const xs = tf.tensor2d([-1, 0, 1, 2, 3, 4], [6, 1]);
+            const ys = tf.tensor2d([-3, -1, 1, 3, 5, 7], [6, 1]);
+            
+            await model.fit(xs, ys, {
+                epochs: 100,
+                callbacks: tfvis.show.fitCallbacks({ name: 'Loss', tab: 'Main' }, ['loss'])
+            });
+
+            await model.save('downloads://my-model');
+            document.getElementById('status').innerText = "Downloaded! Put 'my-model.json' and 'my-model.weights.bin' in your folder.";
+        }
+    </script>
+</body>
+</html>
