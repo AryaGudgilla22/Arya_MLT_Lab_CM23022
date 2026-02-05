@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MNIST Digit Recognition</title>
+
+  <!-- IMPORTANT: Compatible TFJS version -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.7.4/dist/tf.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      margin-top: 20px;
+    }
+    canvas {
+      border: 2px solid black;
+      touch-action: none;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Draw a Digit (0–9)</h2>
+
+  <canvas id="canvas" width="280" height="280"></canvas><br>
+
+  <button onclick="clearCanvas()">Clear</button>
+  <button onclick="predict()">Predict</button>
+
+  <h3 id="result">Loading model…</h3>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
