@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Deep Learning Sentiment Analyzer</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.14.0"></script>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Deep Learning Sentiment Analyzer</h1>
+
+<p>This system uses a pre-trained neural network model for sentiment classification.</p>
+
+<textarea id="textInput" placeholder="Enter a sentence"></textarea>
+
+<div class="buttons">
+<button onclick="predictSentiment()">Analyze Sentiment</button>
+<button onclick="clearText()">Clear</button>
+</div>
+
+<div class="result-card">
+
+<h2>Prediction Result</h2>
+
+<p id="prediction">Loading model...</p>
+<p id="confidence"></p>
+
+<div id="progress-bar">
+<div id="progress"></div>
+</div>
+
+</div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
