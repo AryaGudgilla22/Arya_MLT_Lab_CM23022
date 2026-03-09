@@ -1,0 +1,23 @@
+body{
+font-family: Arial;
+text-align:center;
+background:#f5f5f5;
+}
+
+.video-container{
+position:relative;
+display:inline-block;
+margin-top:20px;
+}
+
+video{
+width:640px;
+height:480px;
+border:2px solid black;
+}
+
+canvas{
+position:absolute;
+top:0;
+left:0;
+}

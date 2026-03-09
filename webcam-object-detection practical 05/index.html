@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Webcam Object Detection</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<h1>Webcam-based Object Detection</h1>
+
+<p>This system captures frames from the webcam and detects objects in real time using a pre-trained model.</p>
+
+<button onclick="startCamera()">Start Webcam</button>
+
+<div class="video-container">
+
+<video id="webcam" autoplay playsinline></video>
+
+<canvas id="canvas"></canvas>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
