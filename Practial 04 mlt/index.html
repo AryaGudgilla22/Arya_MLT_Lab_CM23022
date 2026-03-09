@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>Image Classification using MobileNet</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Image Classification using MobileNet</h1>
+
+<p>This system loads a pre-trained MobileNet model and classifies images directly in the browser.</p>
+
+<input type="file" id="imageUpload" accept="image/*">
+
+<div class="image-container">
+<img id="previewImage">
+</div>
+
+<button onclick="classifyImage()">Classify Image</button>
+
+<div class="results">
+<h2>Prediction Results</h2>
+<ul id="predictions"></ul>
+</div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
