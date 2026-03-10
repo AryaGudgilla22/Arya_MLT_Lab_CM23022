@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Create Tensors</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+
+<body>
+
+<h2>Tensor Creation Example</h2>
+<button onclick="createTensor()">Run</button>
+
+<pre id="output"></pre>
+
+<script>
+
+function createTensor(){
+
+let out="";
+
+// Scalar
+const scalar = tf.scalar(10);
+out += "Scalar Tensor:\n";
+out += scalar.toString() + "\n\n";
+
+// Vector
+const vector = tf.tensor1d([1,2,3,4]);
+out += "Vector Tensor:\n";
+out += vector.toString() + "\n\n";
+
+// Matrix
+const matrix = tf.tensor2d([[1,2],[3,4]]);
+out += "Matrix Tensor:\n";
+out += matrix.toString();
+
+document.getElementById("output").textContent = out;
+
+}
+
+</script>
+
+</body>
+</html>

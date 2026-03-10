@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tensor Reshape and Flatten</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+
+<body>
+
+<h2>Tensor Reshape and Flatten</h2>
+<button onclick="reshapeTensor()">Run</button>
+
+<pre id="output"></pre>
+
+<script>
+
+function reshapeTensor(){
+
+let out="";
+
+const tensor = tf.tensor1d([1,2,3,4,5,6]);
+
+const reshaped = tensor.reshape([2,3]);
+const flattened = reshaped.flatten();
+
+out += "Original Tensor:\n";
+out += tensor.toString() + "\n\n";
+
+out += "Reshaped Tensor (2x3):\n";
+out += reshaped.toString() + "\n\n";
+
+out += "Flattened Tensor:\n";
+out += flattened.toString() + "\n\n";
+
+out += "reshape(): Changes dimensions without changing data\n";
+out += "flatten(): Converts tensor into 1D vector";
+
+document.getElementById("output").textContent = out;
+
+}
+
+</script>
+
+</body>
+</html>
