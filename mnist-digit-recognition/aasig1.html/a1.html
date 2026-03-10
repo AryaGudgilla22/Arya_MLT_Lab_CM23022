@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MobileNet Image Classification</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+
+</head>
+
+<body>
+
+<h2>MobileNet Image Classification (Top 3 Predictions)</h2>
+
+<img id="img" src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg" width="300">
+
+<br><br>
+<button onclick="classifyImage()">Classify Image</button>
+
+<ul id="result"></ul>
+
+<script>
+
+async function classifyImage(){
+
+const model = await mobilenet.load();
+
+const img = document.getElementById("img");
+
+const predictions = await model.classify(img,3);
+
+let resultHTML="";
+
+predictions.forEach(p=>{
+resultHTML += "<li>"+p.className+" : "+(p.probability*100).toFixed(2)+"%</li>";
+});
+
+document.getElementById("result").innerHTML=resultHTML;
+
+}
+
+</script>
+
+</body>
+</html>

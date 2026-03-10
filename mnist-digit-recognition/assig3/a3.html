@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MobileNet vs ResNet</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/resnet"></script>
+
+</head>
+
+<body>
+
+<h2>MobileNet vs ResNet Image Classification</h2>
+
+<img id="img" src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg" width="300">
+
+<br><br>
+<button onclick="compareModels()">Compare Models</button>
+
+<h3>MobileNet Prediction</h3>
+<ul id="mobileResult"></ul>
+
+<h3>ResNet Prediction</h3>
+<ul id="resnetResult"></ul>
+
+<script>
+
+async function compareModels(){
+
+const mobileModel = await mobilenet.load();
+const resnetModel = await resnet.load();
+
+const img=document.getElementById("img");
+
+const mobilePred=await mobileModel.classify(img,3);
+const resnetPred=await resnetModel.classify(img,3);
+
+let mHTML="";
+let rHTML="";
+
+mobilePred.forEach(p=>{
+mHTML += "<li>"+p.className+" : "+(p.probability*100).toFixed(2)+"%</li>";
+});
+
+resnetPred.forEach(p=>{
+rHTML += "<li>"+p.className+" : "+(p.probability*100).toFixed(2)+"%</li>";
+});
+
+document.getElementById("mobileResult").innerHTML=mHTML;
+document.getElementById("resnetResult").innerHTML=rHTML;
+
+}
+
+</script>
+
+</body>
+</html>

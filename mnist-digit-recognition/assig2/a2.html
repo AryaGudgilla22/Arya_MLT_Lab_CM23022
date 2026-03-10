@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MobileNet Multiple Image Test</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+
+</head>
+
+<body>
+
+<h2>MobileNet Classification on 5 Images</h2>
+
+<div>
+
+<img id="img1" src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg" width="150">
+<img id="img2" src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg" width="150">
+<img id="img3" src="https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png" width="150">
+<img id="img4" src="https://upload.wikimedia.org/wikipedia/commons/0/0b/RedApple.jpg" width="150">
+<img id="img5" src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Alaskan_Malamute.jpg" width="150">
+
+</div>
+
+<br>
+<button onclick="testImages()">Test Images</button>
+
+<div id="results"></div>
+
+<script>
+
+async function testImages(){
+
+const model = await mobilenet.load();
+
+let output="";
+
+for(let i=1;i<=5;i++){
+
+let img=document.getElementById("img"+i);
+
+let predictions=await model.classify(img,1);
+
+output += "<p>Image "+i+" Prediction: "+predictions[0].className+
+" ("+(predictions[0].probability*100).toFixed(2)+"%)</p>";
+
+}
+
+document.getElementById("results").innerHTML=output;
+
+}
+
+</script>
+
+</body>
+</html>
