@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Prediction Model</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+
+<body>
+
+<h2>Predict Unseen Values</h2>
+
+<input type="number" id="inputX" placeholder="Enter X value">
+<button onclick="predict()">Predict</button>
+
+<p id="result"></p>
+
+<script>
+
+let model;
+
+async function createModel(){
+
+model=tf.sequential();
+
+model.add(tf.layers.dense({
+units:1,
+inputShape:[1]
+}));
+
+model.compile({
+optimizer:tf.train.sgd(0.1),
+loss:'meanSquaredError'
+});
+
+const xs=tf.tensor2d([1,2,3,4,5],[5,1]);
+const ys=tf.tensor2d([3,5,7,9,11],[5,1]);
+
+await model.fit(xs,ys,{epochs:200});
+
+}
+
+createModel();
+
+async function predict(){
+
+let val=parseFloat(document.getElementById("inputX").value);
+
+let tensor=tf.tensor2d([val],[1,1]);
+
+let prediction=model.predict(tensor);
+
+let output=await prediction.data();
+
+let expected=2*val+1;
+
+document.getElementById("result").innerText=
+"Predicted Value: "+output[0].toFixed(2)+
+" | Expected Value: "+expected;
+
+}
+
+</script>
+
+</body>
+</html>

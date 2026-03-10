@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Regression Model</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<h2>Regression Model with Synthetic Data</h2>
+<button onclick="trainModel()">Train Model</button>
+
+<canvas id="chart" width="600" height="400"></canvas>
+
+<script>
+
+async function trainModel(){
+
+let xs=[];
+let ys=[];
+
+// Generate synthetic data
+for(let i=0;i<20;i++){
+let x=i;
+let y=2*x+1+(Math.random()*2-1);
+xs.push(x);
+ys.push(y);
+}
+
+const xsTensor=tf.tensor2d(xs,[xs.length,1]);
+const ysTensor=tf.tensor2d(ys,[ys.length,1]);
+
+const model=tf.sequential();
+
+model.add(tf.layers.dense({
+units:1,
+inputShape:[1]
+}));
+
+model.compile({
+optimizer:tf.train.sgd(0.1),
+loss:'meanSquaredError'
+});
+
+await model.fit(xsTensor,ysTensor,{epochs:200});
+
+const preds=model.predict(xsTensor);
+const predArray=await preds.data();
+
+new Chart(document.getElementById("chart"),{
+type:'scatter',
+data:{
+datasets:[
+{
+label:'Actual Values',
+data:xs.map((v,i)=>({x:v,y:ys[i]}))
+},
+{
+label:'Predicted Values',
+data:xs.map((v,i)=>({x:v,y:predArray[i]})),
+type:'line'
+}
+]
+}
+});
+
+}
+
+</script>
+
+</body>
+</html>
