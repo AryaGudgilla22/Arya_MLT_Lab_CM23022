@@ -1,41 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>MobileNet Image Classification</title>
+<title>CNN MNIST Training</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
 
 </head>
 
 <body>
 
-<h2>MobileNet Image Classification (Top 3 Predictions)</h2>
+<h2>CNN Training on MNIST</h2>
+<button onclick="trainCNN()">Train Model</button>
 
-<img id="img" src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg" width="300">
-
-<br><br>
-<button onclick="classifyImage()">Classify Image</button>
-
-<ul id="result"></ul>
+<p id="accuracy"></p>
 
 <script>
 
-async function classifyImage(){
+async function loadData(){
 
-const model = await mobilenet.load();
+const mnist = new MnistData();
+await mnist.load();
+return mnist;
 
-const img = document.getElementById("img");
+}
 
-const predictions = await model.classify(img,3);
+async function trainCNN(){
 
-let resultHTML="";
+const data = await loadData();
 
-predictions.forEach(p=>{
-resultHTML += "<li>"+p.className+" : "+(p.probability*100).toFixed(2)+"%</li>";
+const model = tf.sequential();
+
+model.add(tf.layers.conv2d({
+inputShape:[28,28,1],
+filters:8,
+kernelSize:5,
+activation:'relu'
+}));
+
+model.add(tf.layers.maxPooling2d({poolSize:2}));
+
+model.add(tf.layers.flatten());
+
+model.add(tf.layers.dense({
+units:10,
+activation:'softmax'
+}));
+
+model.compile({
+optimizer:'adam',
+loss:'categoricalCrossentropy',
+metrics:['accuracy']
 });
 
-document.getElementById("result").innerHTML=resultHTML;
+const {xs,labels} = data.nextTrainBatch(1000);
+
+await model.fit(xs,labels,{
+epochs:5
+});
+
+const evalResult = model.evaluate(xs,labels);
+
+const accuracy = await evalResult[1].data();
+
+document.getElementById("accuracy").innerText =
+"Accuracy after 5 epochs: "+(accuracy[0]*100).toFixed(2)+"%";
 
 }
 
