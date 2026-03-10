@@ -1,52 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>MobileNet Multiple Image Test</title>
+
+<title>Digit Recognition Canvas</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
 
 </head>
 
 <body>
 
-<h2>MobileNet Classification on 5 Images</h2>
+<h2>Draw Digit (0-9)</h2>
 
-<div>
+<canvas id="canvas" width="280" height="280"
+style="border:2px solid black"></canvas>
 
-<img id="img1" src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg" width="150">
-<img id="img2" src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg" width="150">
-<img id="img3" src="https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png" width="150">
-<img id="img4" src="https://upload.wikimedia.org/wikipedia/commons/0/0b/RedApple.jpg" width="150">
-<img id="img5" src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Alaskan_Malamute.jpg" width="150">
+<br><br>
 
-</div>
+<button onclick="predict()">Predict Digit</button>
 
-<br>
-<button onclick="testImages()">Test Images</button>
-
-<div id="results"></div>
+<p id="result"></p>
 
 <script>
 
-async function testImages(){
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
 
-const model = await mobilenet.load();
+ctx.fillStyle="black";
+ctx.fillRect(0,0,280,280);
 
-let output="";
+let drawing=false;
 
-for(let i=1;i<=5;i++){
+canvas.onmousedown=()=>drawing=true;
+canvas.onmouseup=()=>drawing=false;
 
-let img=document.getElementById("img"+i);
+canvas.onmousemove=function(e){
 
-let predictions=await model.classify(img,1);
+if(!drawing) return;
 
-output += "<p>Image "+i+" Prediction: "+predictions[0].className+
-" ("+(predictions[0].probability*100).toFixed(2)+"%)</p>";
+ctx.fillStyle="white";
+ctx.beginPath();
+ctx.arc(e.offsetX,e.offsetY,10,0,Math.PI*2);
+ctx.fill();
+
+};
+
+async function loadModel(){
+
+return await tf.loadLayersModel(
+"https://storage.googleapis.com/tfjs-models/tfjs/mnist/model.json"
+);
 
 }
 
-document.getElementById("results").innerHTML=output;
+async function predict(){
+
+const model = await loadModel();
+
+let img = tf.browser.fromPixels(canvas,1)
+.resizeNearestNeighbor([28,28])
+.toFloat()
+.div(255)
+.expandDims(0);
+
+let prediction = model.predict(img);
+
+let digit = prediction.argMax(1).dataSync()[0];
+
+document.getElementById("result").innerText =
+"Predicted Digit: "+digit;
 
 }
 
