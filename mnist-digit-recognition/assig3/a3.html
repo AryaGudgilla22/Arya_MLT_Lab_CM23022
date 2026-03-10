@@ -1,55 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>MobileNet vs ResNet</title>
+
+<title>CNN vs Dense Comparison</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/resnet"></script>
 
 </head>
 
 <body>
 
-<h2>MobileNet vs ResNet Image Classification</h2>
+<h2>CNN vs Dense Network</h2>
 
-<img id="img" src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg" width="300">
+<button onclick="compareModels()">Compare</button>
 
-<br><br>
-<button onclick="compareModels()">Compare Models</button>
-
-<h3>MobileNet Prediction</h3>
-<ul id="mobileResult"></ul>
-
-<h3>ResNet Prediction</h3>
-<ul id="resnetResult"></ul>
+<pre id="output"></pre>
 
 <script>
 
 async function compareModels(){
 
-const mobileModel = await mobilenet.load();
-const resnetModel = await resnet.load();
+const xs = tf.randomNormal([1000,28,28,1]);
+const ys = tf.oneHot(
+tf.randomUniform([1000],0,10,'int32'),10
+);
 
-const img=document.getElementById("img");
+// CNN Model
+const cnn = tf.sequential();
 
-const mobilePred=await mobileModel.classify(img,3);
-const resnetPred=await resnetModel.classify(img,3);
+cnn.add(tf.layers.conv2d({
+inputShape:[28,28,1],
+filters:8,
+kernelSize:3,
+activation:'relu'
+}));
 
-let mHTML="";
-let rHTML="";
+cnn.add(tf.layers.flatten());
 
-mobilePred.forEach(p=>{
-mHTML += "<li>"+p.className+" : "+(p.probability*100).toFixed(2)+"%</li>";
+cnn.add(tf.layers.dense({units:10,activation:'softmax'}));
+
+cnn.compile({
+optimizer:'adam',
+loss:'categoricalCrossentropy',
+metrics:['accuracy']
 });
 
-resnetPred.forEach(p=>{
-rHTML += "<li>"+p.className+" : "+(p.probability*100).toFixed(2)+"%</li>";
+// Dense Model
+const dense = tf.sequential();
+
+dense.add(tf.layers.flatten({
+inputShape:[28,28,1]
+}));
+
+dense.add(tf.layers.dense({
+units:64,
+activation:'relu'
+}));
+
+dense.add(tf.layers.dense({
+units:10,
+activation:'softmax'
+}));
+
+dense.compile({
+optimizer:'adam',
+loss:'categoricalCrossentropy',
+metrics:['accuracy']
 });
 
-document.getElementById("mobileResult").innerHTML=mHTML;
-document.getElementById("resnetResult").innerHTML=rHTML;
+const cnnHist = await cnn.fit(xs,ys,{epochs:3});
+const denseHist = await dense.fit(xs,ys,{epochs:3});
+
+let cnnAcc = cnnHist.history.acc.slice(-1);
+let denseAcc = denseHist.history.acc.slice(-1);
+
+document.getElementById("output").textContent =
+"CNN Accuracy: "+cnnAcc+"\nDense Accuracy: "+denseAcc;
 
 }
 
