@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Image Classifier</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            margin: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            width: 320px;
+        }
+
+        img {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #00c6ff;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 15px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🖼️ AI Image Classifier</h1>
+
+<div class="container">
+
+    <div class="card">
+        <h3>Upload Image</h3>
+        <input type="file" id="upload">
+        <img id="preview">
+        <button onclick="predict()">Predict</button>
+    </div>
+
+    <div class="card">
+        <h3>Prediction</h3>
+        <div id="result">Waiting...</div>
+    </div>
+
+</div>
+
+<script>
+let model;
+
+const upload = document.getElementById("upload");
+const preview = document.getElementById("preview");
+const result = document.getElementById("result");
+
+// Load model
+async function loadModel() {
+    model = await mobilenet.load();
+    result.innerText = "Model Loaded ✅";
+}
+loadModel();
+
+// Show uploaded image
+upload.onchange = function(e) {
+    preview.src = URL.createObjectURL(e.target.files[0]);
+};
+
+// Predict
+async function predict() {
+    if (!preview.src) {
+        result.innerText = "Please upload image!";
+        return;
+    }
+
+    const predictions = await model.classify(preview);
+
+    result.innerHTML = `
+        1. ${predictions[0].className} (${(predictions[0].probability*100).toFixed(2)}%) <br>
+        2. ${predictions[1].className} (${(predictions[1].probability*100).toFixed(2)}%) <br>
+        3. ${predictions[2].className} (${(predictions[2].probability*100).toFixed(2)}%)
+    `;
+}
+</script>
+
+</body>
+</html>
