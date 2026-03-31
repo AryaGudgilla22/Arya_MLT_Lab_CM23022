@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Practical 07 - Advanced Model Deployment</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: linear-gradient(to right, #1f4037, #99f2c8);
+            text-align: center;
+        }
+
+        h1 {
+            margin: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            width: 320px;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+        }
+
+        img, video {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        button {
+            margin: 5px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #0072ff;
+            color: white;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #00c6ff;
+        }
+
+        #results {
+            margin-top: 10px;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        #status {
+            margin: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🚀 Practical 07: Advanced Model Deployment</h1>
+<div id="status">Status: Waiting...</div>
+
+<div class="container">
+
+    <!-- Image Upload -->
+    <div class="card">
+        <h3>Upload Image</h3>
+        <input type="file" id="upload" accept="image/*">
+        <img id="image" src="">
+        <button onclick="predictImage()">Predict</button>
+    </div>
+
+    <!-- Webcam -->
+    <div class="card">
+        <h3>Webcam</h3>
+        <video id="video" autoplay></video>
+        <button onclick="capture()">Capture</button>
+        <canvas id="canvas" style="display:none;"></canvas>
+    </div>
+
+    <!-- Controls -->
+    <div class="card">
+        <h3>Model Controls</h3>
+        <button onclick="loadModel()">Load Model</button>
+        <button onclick="saveModel()">Save Model</button>
+        <button onclick="reloadModel()">Reload Model</button>
+
+        <div id="results">Predictions will appear here</div>
+    </div>
+
+</div>
+
+<script>
+let model;
+
+const statusText = document.getElementById("status");
+const image = document.getElementById("image");
+const upload = document.getElementById("upload");
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+// Load model
+async function loadModel() {
+    model = await mobilenet.load();
+    statusText.innerText = "Model Loaded ✅";
+}
+
+// Save model
+async function saveModel() {
+    if (!model) return alert("Load model first");
+    await model.model.save('localstorage://advanced-model');
+    statusText.innerText = "Model Saved 💾";
+}
+
+// Reload model
+async function reloadModel() {
+    model = await tf.loadLayersModel('localstorage://advanced-model');
+    statusText.innerText = "Model Reloaded 🔄";
+}
+
+// Upload image preview
+upload.onchange = function(event) {
+    const file = event.target.files[0];
+    image.src = URL.createObjectURL(file);
+};
+
+// Predict uploaded image
+async function predictImage() {
+    if (!model) return alert("Load model first");
+
+    const predictions = await model.classify(image);
+    displayResults(predictions);
+}
+
+// Webcam setup
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => video.srcObject = stream);
+
+// Capture from webcam
+async function capture() {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+
+    const predictions = await model.classify(canvas);
+    displayResults(predictions);
+}
+
+// Display results
+function displayResults(predictions) {
+    let output = "<b>Top Predictions:</b><br>";
+    predictions.slice(0,3).forEach(p => {
+        output += `${p.className} (${(p.probability*100).toFixed(2)}%)<br>`;
+    });
+    document.getElementById("results").innerHTML = output;
+}
+</script>
+
+</body>
+</html>
