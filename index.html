@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pose Capture & Detection</title>
+
+    <!-- TensorFlow + PoseNet -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: white;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        video, canvas {
+            margin-top: 15px;
+            border-radius: 12px;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.5);
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #00c6ff;
+            color: black;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0072ff;
+            color: white;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>📸 Pose Capture & Hand Detection</h1>
+
+    <div class="container">
+        <video id="video" width="600" height="450" autoplay></video>
+        <canvas id="canvas" width="600" height="450"></canvas>
+
+        <button onclick="capture()">📸 Capture & Detect</button>
+
+        <div id="result">Result will appear here</div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const resultText = document.getElementById('result');
+
+        let net;
+
+        async function setupCamera() {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true
+            });
+            video.srcObject = stream;
+
+            return new Promise(resolve => {
+                video.onloadedmetadata = () => resolve(video);
+            });
+        }
+
+        async function loadModel() {
+            net = await posenet.load();
+        }
+
+        function drawKeypoints(keypoints) {
+            keypoints.forEach(point => {
+                if (point.score > 0.5) {
+                    const { x, y } = point.position;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                    ctx.fillStyle = "yellow";
+                    ctx.fill();
+                }
+            });
+        }
+
+        function detectHandPosition(keypoints) {
+            const leftWrist = keypoints.find(k => k.part === "leftWrist");
+            const leftShoulder = keypoints.find(k => k.part === "leftShoulder");
+
+            if (leftWrist.score > 0.5 && leftShoulder.score > 0.5) {
+                if (leftWrist.position.y < leftShoulder.position.y) {
+                    return "🙋 Hand Up";
+                } else {
+                    return "👇 Hand Down";
+                }
+            }
+            return "Detection Failed";
+        }
+
+        async function capture() {
+            // Capture image
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Detect pose on captured image
+            const pose = await net.estimateSinglePose(canvas);
+
+            drawKeypoints(pose.keypoints);
+
+            const result = detectHandPosition(pose.keypoints);
+            resultText.innerText = result;
+        }
+
+        async function main() {
+            await setupCamera();
+            video.play();
+            await loadModel();
+        }
+
+        main();
+    </script>
+
+</body>
+</html>
