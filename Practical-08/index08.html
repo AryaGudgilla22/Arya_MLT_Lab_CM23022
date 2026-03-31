@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Practical 08 - Transfer Learning</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            color: white;
+        }
+
+        h1 {
+            margin: 20px;
+        }
+
+        video {
+            width: 400px;
+            border-radius: 10px;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            background: #fff;
+            color: black;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 22px;
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🍎 Practical 08: Transfer Learning (Fruits)</h1>
+
+<video id="video" autoplay></video>
+
+<br>
+
+<button onclick="addExample('Apple')">Add Apple</button>
+<button onclick="addExample('Banana')">Add Banana</button>
+<button onclick="addExample('Orange')">Add Orange</button>
+
+<br><br>
+
+<button onclick="predict()">Start Prediction</button>
+
+<div id="result">Training not started</div>
+
+<script>
+let net;
+let classifier;
+
+const video = document.getElementById('video');
+const result = document.getElementById('result');
+
+// Setup webcam
+async function setupCamera() {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+}
+
+// Load MobileNet + KNN
+async function loadModel() {
+    net = await mobilenet.load();
+    classifier = knnClassifier.create();
+    result.innerText = "Model Loaded ✅";
+}
+
+// Add training examples
+async function addExample(label) {
+    const activation = net.infer(video, true);
+    classifier.addExample(activation, label);
+    result.innerText = label + " added 👍";
+}
+
+// Predict continuously
+async function predict() {
+    while (true) {
+        if (classifier.getNumClasses() > 0) {
+            const activation = net.infer(video, true);
+            const prediction = await classifier.predictClass(activation);
+
+            result.innerText =
+                prediction.label + 
+                " (" + (prediction.confidences[prediction.label] * 100).toFixed(2) + "%)";
+        }
+        await tf.nextFrame();
+    }
+}
+
+// Main
+async function main() {
+    await setupCamera();
+    await loadModel();
+}
+
+main();
+</script>
+
+</body>
+</html>
